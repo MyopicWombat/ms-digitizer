@@ -9,6 +9,8 @@ const xMax = document.getElementById('xMax');
 const scaleMin = document.getElementById('scaleMin');
 const scaleMax = document.getElementById('scaleMax');
 
+const roundAccurately = (number, decimalPlaces) => Number(Math.round(number + "e" + decimalPlaces) + "e-" + decimalPlaces)
+
 const markerMove = () => {
   redrawImage();
   drawMarkers();
@@ -28,14 +30,18 @@ process.onclick = (e) => {
 
   let center;
   const peakList = [];
-
-  for (let x = xMin.value; x < xMax.value; x++) {
-
+  console.log(xMin.value);
+  console.log(xMax.value);
+  const x1 = Number(xMin.value), x2 = Number(xMax.value)
+  for (let x = x1; x < x2; x++) {
+    console.log(x);
     center = checkPixel(x, y, size);
+    console.log(center);
+
     if (center) {
       //y = getApex(x,y,size);
       let scaled = convertToScale(center);
-      peakList.push(Math.round(scaled));
+      peakList.push(roundAccurately(scaled,1));
       x = center + size;
       console.log(x)
     }
@@ -52,8 +58,9 @@ const drawLines = (xList) => {
     context.beginPath();
 
     context.moveTo(element, 0);
-    context.lineTo(element,canvas.height);
+    context.lineTo(element, canvas.height);
 
+    context.strokeStyle = '#FF0000';
     context.stroke();
   });
 }
@@ -89,15 +96,19 @@ const getGreyPixel = (x, y, size) => {
 }
 
 const convertToScale = (x) => {
-  const m = (scaleMax.value- scaleMin.value) / (xMax.value - xMin.value);
-  const b = (scaleMax.value - (m * xMax.value));
-  return m*x+b;
+  const s1 = Number(scaleMax.value), s2 = Number(scaleMin.value),
+    x1 = Number(xMax.value), x2 = Number(xMin.value)
+  const m = (s1 - s2) / (x1 - x2);
+  const b = (s1 - (m * x1));
+  return m * x + b;
 }
 
 const converFromScale = (x) => {
-  const m = (xMax.value - xMin.value)/(scaleMax.value- scaleMin.value);
-  const b = (xMax.value - (m * scaleMax.value));
-  return m*x+b;
+  const s1 = Number(scaleMax.value), s2 = Number(scaleMin.value),
+    x1 = Number(xMax.value), x2 = Number(xMin.value)
+  const m = (x1 - x2) / (s1 - s2);
+  const b = (x1 - (m * s1));
+  return m * x + b;
 
 }
 
@@ -136,4 +147,4 @@ const drawMarkers = () => {
   context.stroke();
 }
 
-image.src = './test.png';
+image.src = './IMG_4980.JPG';
