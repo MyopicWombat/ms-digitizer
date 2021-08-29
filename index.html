@@ -15,19 +15,24 @@
   </div>
   <div>
     <label for='pixelSize'>Pixel Size</label>
-    <input id='pixelSize' type='range' min='1' max='10' value='1'>
-    <label for='horizontalMarker'>Horiztonal Marker</label>
-    <input id='horizontalMarker' type='range' min='1' max='10000' value='430'>
+    <input id='pixelSize' type='range' min='1' max='10' value='2'>
     <label for='threshold'>Threshold</label>
     <input id='threshold' type='range' min='0' max='255' value='150'>
-    <label for='xMin'>xMin</label>
-    <input id='xMin' type='range' min='0' max='255' value='150'>
-    <label for='xMax'>xMax</label>
-    <input id='xMax' type='range' min='0' max='255' value='150'>
+  </div>
+
+  <div>
+    <label for='yAxis'>y-axis</label>
+    <input id='yAxis' type='range' min='1' max='10000' value='1020'>
+    <label for='horizontalMarker'>Horiztonal Marker</label>
+    <input id='horizontalMarker' type='range' min='1' max='10000' value='1009'>
   </div>
   <div>
-    <input id='scaleMin' type='number' placeholder="min" value = 0>
-    <input id='scaleMax' type='number' placeholder="max" value = 90>
+    <label for='xMin'>xMin</label>
+    <input id='xMin' type='range' min='0' max='2000' value='99'>
+    <input id='scaleMin' type='number' placeholder="min" value = 40>
+    <label for='xMax'>xMax</label>
+    <input id='xMax' type='range' min='0' max='2000' value='1652'>
+    <input id='scaleMax' type='number' placeholder="max" value = 460>
   </div>
   <div>
     <canvas id='imageCanvas'></canvas>
