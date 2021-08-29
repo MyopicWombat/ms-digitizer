@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="./index.js" defer></script>
+</head>
+
+<body>
+  <div>
+    <button id='process'>Process</button>
+  </div>
+  <div>
+    <label for='pixelSize'>Pixel Size</label>
+    <input id='pixelSize' type='range' min='1' max='10' value='1'>
+    <label for='horizontalMarker'>Horiztonal Marker</label>
+    <input id='horizontalMarker' type='range' min='1' max='10000' value='430'>
+    <label for='threshold'>Threshold</label>
+    <input id='threshold' type='range' min='0' max='255' value='150'>
+    <label for='xMin'>xMin</label>
+    <input id='xMin' type='range' min='0' max='255' value='150'>
+    <label for='xMax'>xMax</label>
+    <input id='xMax' type='range' min='0' max='255' value='150'>
+  </div>
+  <div>
+    <input id='scaleMin' type='number' placeholder="min" value = 0>
+    <input id='scaleMax' type='number' placeholder="max" value = 90>
+  </div>
+  <div>
+    <canvas id='imageCanvas'></canvas>
+  </div>
+</body>
+
+</html>
