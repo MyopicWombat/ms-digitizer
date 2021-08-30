@@ -30,6 +30,15 @@ let mouseState = {
   shift: false
 }
 
+canvas.onmousewheel = (e) => {
+  if(e.shiftKey){
+    e.preventDefault();
+    let t = Number(threshold.value) + (e.wheelDelta /60);
+    threshold.value = t;
+    markerMove();
+  }
+}
+
 canvas.onmousedown = (e) => {
   mouseState.button = e.button;
   mouseState.shift = e.shiftKey;
@@ -313,7 +322,7 @@ const drawLines = (list) => {
     // context.lineTo(element.x, element.y);
 
 
-    context.strokeStyle = '#00FF00';
+    context.strokeStyle = '#FF0000';
     context.stroke();
   });
 }
