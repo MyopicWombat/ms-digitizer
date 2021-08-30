@@ -13,14 +13,17 @@ const scaleMax = document.getElementById('scaleMax');
 
 const roundAccurately = (number, decimalPlaces) => Number(Math.round(number + "e" + decimalPlaces) + "e-" + decimalPlaces)
 const markerMove = () => {
-  redrawImage();
-  drawMarkers();
+  // redrawImage();
+  // drawMarkers();
+  processMS();
 }
 
 horizontalMarker.oninput = markerMove;
 xMin.oninput = markerMove;
 xMax.oninput = markerMove;
 yAxis.oninput = markerMove;
+threshold.oninput = markerMove;
+pixelSize.oninput = markerMove;
 
 canvas.onclick = (e) => {
   let rect = canvas.getBoundingClientRect();
@@ -32,70 +35,149 @@ canvas.onclick = (e) => {
 
 }
 
-process.onclick = (e) => {
+
+const processMS = () => {
   redrawImage();
   const y = Number(horizontalMarker.value);
   const size = Number(pixelSize.value);
 
-  const peakList = [];
-  const x1 = Number(xMin.value), x2 = Number(xMax.value)
-
-  for (let x = x1; x < x2; x++) {
-    // console.log(x);
-
-    if (checkThreshold(x, y, size)) {
-      let center = findHorizontalCenter(x, y, size);
-      let apex = findApex(center, y, size);
-      let scaled = convertToScale(center);
-      peakList.push({
-        x: roundAccurately(scaled, 1),
-        y: apex
-      });
-      x = center + size;
-    }
-
-  }
-  console.log(peakList);
-  drawLines(peakList);
+  let list = getIntensitiesOnMarker(y, size);
+  list = firstDerivativeFilter(list);
+  list = refineCenter(list, y, size);
+  list = findApex(list, y, size);
+  drawLines(list);
   drawMarkers();
+  return list.map(element => {
+    return {
+      x: roundAccurately(convertToScale(element.x),1),
+      y: element.y
+    }
+  })
 }
 
-const checkThreshold = (x, y, size) => {
-  //check if a pixel is below the threshold
-  let pixelData = context.getImageData(x - (size / 2), y - size, size, size).data;
-  for (let i = 0; i < pixelData.length; i += 4) {
-    let pixel = grey(pixelData.slice(i, i + 4))
-    if (y !== 500) {
-      console.log(`(${x}, ${y}): ${pixel}, threshold ${threshold.value}`);
+process.onclick = () => {
+  const processed = processMS();
+  const output = document.getElementById('output');
+  output.innerHTML = processed.reduce((acc, cur) => {
+    return acc + `<p>${cur.x}, ${cur.y}</p>`;
+  }, '');
+};
+const getIntensitiesOnMarker = (y, size) => {
+  const list = [];
+  const x1 = Number(xMin.value), x2 = Number(xMax.value)
+  for (let x = x1; x < x2; x++) {
+    let pixels = context.getImageData(x, y, size, -size).data;
+    let intensity = averageIntensity(pixels);
+    list.push({
+      x: x,
+      y: intensity
     }
-    if (pixel < Number(threshold.value)) {
-      return true;
-    }
+    );
   }
+  return list;
 }
 
-const findHorizontalCenter = (x, y, size, offset = 0) => {
-  let width = size * 2
-  let pixelData = context.getImageData(x - offset, y, width + offset, -size).data;
-  let min = {
-    x: 0,
-    value: 255
-  }
-  for (let xi = 0; xi < width; xi++) {
-    let average = 0;
-    for (let yi = 0; yi < size; yi++) {
-      let start = getStartPixel(xi, yi, width);
-      let pixel = pixelData.slice(start, start + 4);
-      average += grey(pixel);
-    }
-    average /= size;
-    if (average < min.value) {
-      min.x = xi + x - offset;
-      min.value = average;
+const firstDerivativeFilter = (list) => {
+  const filtered = [];
+  for (let i = 1; i < list.length - 1; i++) {
+
+    let prev = list[i - 1].y;
+    let cur = list[i].y;
+    let next = list[i + 1].y;
+
+    let prevDif = cur - prev;
+    let curDif = next - cur;
+
+    if ((cur > Number(threshold.value)) && (curDif === 0 || (prevDif > 0 && curDif < 0))) {
+      filtered.push(list[i])
     }
   }
-  console.log(`found best intensity of ${min.value} at ${min.x} from ${x} on row ${y}`)
-  return min.x;
+  return filtered;
+}
+
+const refineCenter = (list, y, size) => {
+  const refined = [];
+
+  for (let i = 0; i < list.length; i++) {
+    let left = list[i].x;
+    let right = list[i].x;
+    let intensity = list[i].y;
+
+    let pi = left;
+    let pixel = 255;
+
+    while (pi <= list[i].x + size && pixel > intensity / 2) {
+      right = pi;
+      pi++;
+      pixel = grey(context.getImageData(pi, y, 1, -1).data);
+    }
+
+    pi = right;
+    while (pi >= list[i].x - size && pixel > intensity / 2) {
+      left = pi;
+      pi--;
+      pixel = grey(context.getImageData(pi, y, 1, -1).data);
+    }
+    let center = (left + right) / 2
+    refined.push({
+      x: center,
+      y: intensity
+    })
+  }
+  // console.log(refined);
+  return refined;
+}
+
+const findApex = (list, yStart, size) => {
+  const apexes = [];
+
+  for (let i = 0; i < list.length; i++) {
+
+    let aboveThreshold = true;
+
+
+    let max = {
+      x: list[i].x,
+      i: 0
+    };
+    let y = yStart;
+
+    let counter = 0;
+    while (aboveThreshold && counter < canvas.height) {
+      counter++;
+      y -= size;
+      max.i = 0;
+      // console.log('current max', max);
+      for (let x = max.x - size; x <= max.x + size; x += size) {
+        let intensity = averageIntensity(context.getImageData(x, y, size, size).data)
+        // console.log('current intensity', intensity);
+        if (intensity > max.i) {
+          max = {
+            x,
+            i: intensity
+          }
+        }
+        // console.log('max after comparison', max)
+      }
+      // console.log(Number(threshold.value))
+      aboveThreshold = max.i > Number(threshold.value);
+      // console.log(aboveThreshold);
+    }
+    apexes.push({
+      x: list[i].x,
+      y
+    })
+  }
+  return apexes;
+}
+
+const averageIntensity = (pixels) => {
+  let average = 0;
+  for (let i = 0; i < pixels.length; i += 4) {
+    average += grey(pixels.slice(i, i + 4));
+  }
+  average /= (pixels.length / 4);
+  return average;
 }
 
 function getStartPixel(x, y, width) {
@@ -103,19 +185,8 @@ function getStartPixel(x, y, width) {
   return start;
 }
 
-const findApex = (x, y, size) => {
-  let xi = x;
-  for (let yi = y - size; yi > 0; yi -= size) {
-    xi = findHorizontalCenter(xi, yi, size, size);
-    console.log(xi, yi);
-    if (!checkThreshold(xi, yi, size)) {
-      return yi;
-    }
-  }
-}
-
 const grey = (pixel) => {
-  return (2 * pixel[0] + 5 * pixel[1] + pixel[2]) / 8
+  return 255 - (2 * pixel[0] + 5 * pixel[1] + pixel[2]) / 8
 }
 
 const convertToScale = (x) => {
@@ -181,23 +252,27 @@ const drawMarkers = () => {
 
 const drawLines = (list) => {
   list.forEach(element => {
-    element.x = convertFromScale(element.x);
+    // element.x = convertFromScale(element.x);
 
-    context.beginPath();
+    // context.beginPath();
 
-    context.moveTo(element.x, 0);
-    context.lineTo(element.x, canvas.height);
+    // context.moveTo(element.x, 0);
+    // context.lineTo(element.x, canvas.height);
 
-    context.strokeStyle = '#FF0000';
-    context.stroke();
+    // context.strokeStyle = '#FF0000';
+    // context.stroke();
 
     context.beginPath();
 
     context.moveTo(element.x, Number(yAxis.value));
     context.lineTo(element.x, element.y);
+    // context.moveTo(element.x, 0);
+    // context.lineTo(element.x, element.y);
+
 
     context.strokeStyle = '#00FF00';
     context.stroke();
   });
 }
+// image.src = './test.png';
 image.src = './IMG_4980.JPG';

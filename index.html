@@ -6,7 +6,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
-  <script src="./index.js" defer></script>
+  <script src="./index.js" defer type="module"></script>
 </head>
 
 <body>
@@ -15,27 +15,28 @@
   </div>
   <div>
     <label for='pixelSize'>Pixel Size</label>
-    <input id='pixelSize' type='range' min='1' max='10' value='2'>
+    <input id='pixelSize' type='range' min='1' max='10' value='1'>
     <label for='threshold'>Threshold</label>
-    <input id='threshold' type='range' min='0' max='255' value='150'>
+    <input id='threshold' type='range' min='0' max='255' value='100'>
   </div>
 
   <div>
     <label for='yAxis'>y-axis</label>
     <input id='yAxis' type='range' min='1' max='10000' value='1020'>
     <label for='horizontalMarker'>Horiztonal Marker</label>
-    <input id='horizontalMarker' type='range' min='1' max='10000' value='1009'>
+    <input id='horizontalMarker' type='range' min='1' max='10000' value='1000'>
   </div>
   <div>
     <label for='xMin'>xMin</label>
-    <input id='xMin' type='range' min='0' max='2000' value='99'>
+    <input id='xMin' type='range' min='0' max='2000' value='1530'>
     <input id='scaleMin' type='number' placeholder="min" value = 40>
     <label for='xMax'>xMax</label>
-    <input id='xMax' type='range' min='0' max='2000' value='1652'>
+    <input id='xMax' type='range' min='0' max='2000' value='1590'>
     <input id='scaleMax' type='number' placeholder="max" value = 460>
   </div>
   <div>
     <canvas id='imageCanvas'></canvas>
+    <div id='output'></div>
   </div>
 </body>
 
