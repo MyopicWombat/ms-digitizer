@@ -251,7 +251,7 @@ threshold.oninput = markerMove;
 pixelSize.oninput = markerMove;
 
 canvas.onmousewheel = (e) => {
-  if (e.shiftKey) {
+  if (e.altKey) {
     e.preventDefault();
     let t = Number(threshold.value) + (e.wheelDelta / 60);
     threshold.value = t;
