@@ -7,21 +7,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Document</title>
   <script src="./index.js" defer type="module"></script>
+  <link rel="stylesheet" href="./style.css">
 </head>
 
 <body>
+  <div>
+    <p>Click "Choose File" to upload a file.</p>
+    <p>Left click sets the x-min location, right click sets the x-max location. Set the scale value with the input
+      fields.</p>
+    <p>Shift left click to set the horizontal marker (region for peak finding). Shift right click to set y-axis
+      location.</p>
+    <p>Alt-clicking whites out an area of the image to correct processed data.</p>
+    <p>Pixel size can be tuned for blurry images. Threshold is the limit for feature finding.</p>
+    <p>Process outputs csv text at the bottom of the page.</p>
+  </div>
   <div>
     <input type='file' id='files'>
     <button id='process'>Process</button>
     <button id='reload'>Reload Image</button>
     <label for='radius'>Whiteout Radius (alt-click)</label>
     <input id='radius' type='range' min='1' max='20' value='10'>
-  </div>
-  <div>
-    <label for='pixelSize'>Pixel Size</label>
-    <input id='pixelSize' type='range' min='1' max='10' value='1'>
-    <label for='threshold'>Threshold</label>
-    <input id='threshold' type='range' min='0' max='255' value='100'>
   </div>
 
   <div>
@@ -32,11 +37,17 @@
   </div>
   <div>
     <label for='xMin'>xMin</label>
+    <input id='scaleMin' type='number' placeholder="min" value=40>
     <input id='xMin' type='range' min='0' max='2000' value='1530'>
-    <input id='scaleMin' type='number' placeholder="min" value = 40>
     <label for='xMax'>xMax</label>
+    <input id='scaleMax' type='number' placeholder="max" value=460>
     <input id='xMax' type='range' min='0' max='2000' value='1590'>
-    <input id='scaleMax' type='number' placeholder="max" value = 460>
+  </div>
+  <div>
+    <label for='pixelSize'>Pixel Size</label>
+    <input id='pixelSize' type='range' min='1' max='10' value='1'>
+    <label for='threshold'>Threshold</label>
+    <input id='threshold' type='range' min='0' max='255' value='100'>
   </div>
   <div>
     <canvas id='imageCanvas'></canvas>
