@@ -25,14 +25,57 @@ yAxis.oninput = markerMove;
 threshold.oninput = markerMove;
 pixelSize.oninput = markerMove;
 
-canvas.onclick = (e) => {
+let mouseState = {
+  button: -1,
+  shift: false
+}
+
+canvas.onmousedown = (e) => {
+  mouseState.button = e.button;
+  mouseState.shift = e.shiftKey;
+}
+
+canvas.oncontextmenu = (e) => {
+  e.preventDefault();
+}
+
+canvas.onmouseup = (e) => {
+  mouseMarkers(e);
+  mouseState.button = -1;
+  mouseState.shift = false;
+}
+
+canvas.onmousemove = (e) => {
+  mouseMarkers(e);
+}
+
+const mouseMarkers = (e) => {
+  if (mouseState.button > -1) {
+    let { x, y } = getCoords(e);
+    if (mouseState.button === 0) {
+      if(!mouseState.shift){
+        xMin.value = x;
+      } else {
+        horizontalMarker.value = y;
+      }
+    } else {
+      if(!mouseState.shift){
+        xMax.value = x;
+      } else {
+        yAxis.value = y;
+      }
+    }
+    markerMove();
+
+  }
+}
+
+const getCoords = (e) => {
   let rect = canvas.getBoundingClientRect();
   let x = e.clientX - rect.left;
   let y = e.clientY - rect.top;
-  console.log("Coordinate x: " + x,
-    "Coordinate y: " + y);
-  console.log(grey(context.getImageData(x, y, 1, 1).data))
 
+  return { x, y }
 }
 
 
@@ -49,7 +92,7 @@ const processMS = () => {
   drawMarkers();
   return list.map(element => {
     return {
-      x: roundAccurately(convertToScale(element.x),1),
+      x: roundAccurately(convertToScale(element.x), 1),
       y: element.y
     }
   })
@@ -59,7 +102,7 @@ process.onclick = () => {
   const processed = processMS();
   const output = document.getElementById('output');
   output.innerHTML = processed.reduce((acc, cur) => {
-    return acc + `<p>${cur.x}, ${cur.y}</p>`;
+    return acc + `<div>${cur.x}, ${cur.y}</div>`;
   }, '');
 };
 const getIntensitiesOnMarker = (y, size) => {
