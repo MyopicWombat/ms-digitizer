@@ -15,8 +15,7 @@ const radius = document.getElementById('radius');
 reload.onclick = () => {
   context.drawImage(image, 0, 0);
   storeImage();
-  drawMarkers();
-
+  markerMove();
 }
 
 const roundAccurately = (number, decimalPlaces) => Number(Math.round(number + "e" + decimalPlaces) + "e-" + decimalPlaces)
