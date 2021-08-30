@@ -1,73 +1,18 @@
-const canvas = document.getElementById('imageCanvas');
-const context = document.getElementById('imageCanvas').getContext('2d');
-const pixelSize = document.getElementById('pixelSize');
-const horizontalMarker = document.getElementById('horizontalMarker');
-const threshold = document.getElementById('threshold');
-const process = document.getElementById('process');
-const xMin = document.getElementById('xMin');
-const xMax = document.getElementById('xMax');
-const yAxis = document.getElementById('yAxis');
-const scaleMin = document.getElementById('scaleMin');
-const scaleMax = document.getElementById('scaleMax');
-const reload = document.getElementById('reload');
-const radius = document.getElementById('radius');
+//gui elements
+import {canvas, context, pixelSize, horizontalMarker, threshold, process, xMin, xMax, yAxis, scaleMin, scaleMax, reload, radius} from './gui.js'
 
-reload.onclick = () => {
-  context.drawImage(image, 0, 0);
-  storeImage();
-  markerMove();
-}
+//utility functions
+import {roundAccurately, averageIntensity, grey, convertToScale, storeImage, redrawImage, drawMarkers, drawLines} from './util.js';
 
-const roundAccurately = (number, decimalPlaces) => Number(Math.round(number + "e" + decimalPlaces) + "e-" + decimalPlaces)
-const markerMove = () => {
-  // redrawImage();
-  // drawMarkers();
-  processMS();
-}
-
-horizontalMarker.oninput = markerMove;
-xMin.oninput = markerMove;
-xMax.oninput = markerMove;
-yAxis.oninput = markerMove;
-threshold.oninput = markerMove;
-pixelSize.oninput = markerMove;
-
+//global variables
 let mouseState = {
   button: -1,
   shift: false
 }
 
-canvas.onmousewheel = (e) => {
-  if (e.shiftKey) {
-    e.preventDefault();
-    let t = Number(threshold.value) + (e.wheelDelta / 60);
-    threshold.value = t;
-    markerMove();
-  }
-}
-
-canvas.onmousedown = (e) => {
-  mouseState.button = e.button;
-  mouseState.shift = e.shiftKey;
-  mouseState.alt = e.altKey;
-}
-
-canvas.oncontextmenu = (e) => {
-  e.preventDefault();
-}
-
-canvas.onmouseup = (e) => {
-  mouseMarkers(e);
-  if(mouseState.alt) {
-    markerMove()
-  };
-  mouseState.button = -1;
-  mouseState.shift = false;
-  mouseState.alt = false;
-}
-
-canvas.onmousemove = (e) => {
-  mouseMarkers(e);
+//event handlers
+const markerMove = () => {
+  processMS();
 }
 
 const mouseMarkers = (e) => {
@@ -112,7 +57,7 @@ const getCoords = (e) => {
   return { x, y }
 }
 
-
+//processing image
 const processMS = () => {
   redrawImage();
   const y = Number(horizontalMarker.value);
@@ -132,13 +77,6 @@ const processMS = () => {
   })
 }
 
-process.onclick = () => {
-  const processed = processMS();
-  const output = document.getElementById('output');
-  output.innerHTML = processed.reduce((acc, cur) => {
-    return acc + `<div>${cur.x}, ${cur.y}</div>`;
-  }, '');
-};
 const getIntensitiesOnMarker = (y, size) => {
   const list = [];
   const x1 = Number(xMin.value), x2 = Number(xMax.value)
@@ -248,43 +186,10 @@ const findApex = (list, yStart, size) => {
   return apexes;
 }
 
-const averageIntensity = (pixels) => {
-  let average = 0;
-  for (let i = 0; i < pixels.length; i += 4) {
-    average += grey(pixels.slice(i, i + 4));
-  }
-  average /= (pixels.length / 4);
-  return average;
-}
 
-function getStartPixel(x, y, width) {
-  var start = y * (width * 4) + x * 4;
-  return start;
-}
-
-const grey = (pixel) => {
-  return 255 - (2 * pixel[0] + 5 * pixel[1] + pixel[2]) / 8
-}
-
-const convertToScale = (x) => {
-  const s1 = Number(scaleMax.value), s2 = Number(scaleMin.value),
-    x1 = Number(xMax.value), x2 = Number(xMin.value)
-  const m = (s1 - s2) / (x1 - x2);
-  const b = (s1 - (m * x1));
-  return m * x + b;
-}
-
-const convertFromScale = (x) => {
-  const s1 = Number(scaleMax.value), s2 = Number(scaleMin.value),
-    x1 = Number(xMax.value), x2 = Number(xMin.value)
-  const m = (x1 - x2) / (s1 - s2);
-  const b = (x1 - (m * s1));
-  return m * x + b;
-
-}
-
+//set up image
 const image = new Image();
-let tempImage;
+
 image.onload = () => {
   canvas.width = image.width;
   canvas.height = image.height;
@@ -303,59 +208,62 @@ image.onload = () => {
   drawMarkers();
 }
 
-const storeImage = () => {
-  tempImage = context.getImageData(0, 0, canvas.width, canvas.height);
 
-}
-
-const redrawImage = () => {
-  context.clearRect(0, 0, canvas.width, canvas.height);
-  context.putImageData(tempImage, 0, 0);
-}
-
-const drawMarkers = () => {
-  context.beginPath()
-
-  context.moveTo(0, horizontalMarker.value);
-  context.lineTo(canvas.width, horizontalMarker.value);
-
-
-  context.moveTo(0, yAxis.value);
-  context.lineTo(canvas.width, yAxis.value);
-
-  context.moveTo(xMin.value, 0);
-  context.lineTo(xMin.value, canvas.height);
-
-  context.moveTo(xMax.value, 0);
-  context.lineTo(xMax.value, canvas.height);
-
-  context.strokeStyle = '#0000FF';
-  context.stroke();
-}
-
-const drawLines = (list) => {
-  list.forEach(element => {
-    // element.x = convertFromScale(element.x);
-
-    // context.beginPath();
-
-    // context.moveTo(element.x, 0);
-    // context.lineTo(element.x, canvas.height);
-
-    // context.strokeStyle = '#FF0000';
-    // context.stroke();
-
-    context.beginPath();
-
-    context.moveTo(element.x, Number(yAxis.value));
-    context.lineTo(element.x, element.y);
-    // context.moveTo(element.x, 0);
-    // context.lineTo(element.x, element.y);
-
-
-    context.strokeStyle = '#FF0000';
-    context.stroke();
-  });
-}
 // image.src = './test.png';
 image.src = './IMG_4980.JPG';
+
+//event handlers
+
+process.onclick = () => {
+  const processed = processMS();
+  const output = document.getElementById('output');
+  output.innerHTML = processed.reduce((acc, cur) => {
+    return acc + `<div>${cur.x}, ${cur.y}</div>`;
+  }, '');
+};
+
+reload.onclick = () => {
+  context.drawImage(image, 0, 0);
+  storeImage();
+  markerMove();
+}
+
+horizontalMarker.oninput = markerMove;
+xMin.oninput = markerMove;
+xMax.oninput = markerMove;
+yAxis.oninput = markerMove;
+threshold.oninput = markerMove;
+pixelSize.oninput = markerMove;
+
+canvas.onmousewheel = (e) => {
+  if (e.shiftKey) {
+    e.preventDefault();
+    let t = Number(threshold.value) + (e.wheelDelta / 60);
+    threshold.value = t;
+    markerMove();
+  }
+}
+
+canvas.onmousedown = (e) => {
+  mouseState.button = e.button;
+  mouseState.shift = e.shiftKey;
+  mouseState.alt = e.altKey;
+}
+
+canvas.oncontextmenu = (e) => {
+  e.preventDefault();
+}
+
+canvas.onmouseup = (e) => {
+  mouseMarkers(e);
+  if(mouseState.alt) {
+    markerMove()
+  };
+  mouseState.button = -1;
+  mouseState.shift = false;
+  mouseState.alt = false;
+}
+
+canvas.onmousemove = (e) => {
+  mouseMarkers(e);
+}
