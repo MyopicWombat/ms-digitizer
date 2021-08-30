@@ -93,7 +93,7 @@ const processMS = () => {
   return list.map(element => {
     return {
       x: roundAccurately(convertToScale(element.x), 1),
-      y: element.y
+      y: Number(yAxis.value) - element.y
     }
   })
 }
