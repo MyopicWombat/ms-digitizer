@@ -31,17 +31,19 @@ let mouseState = {
 }
 
 canvas.onmousewheel = (e) => {
-  if(e.shiftKey){
+  if (e.shiftKey) {
     e.preventDefault();
-    let t = Number(threshold.value) + (e.wheelDelta /60);
+    let t = Number(threshold.value) + (e.wheelDelta / 60);
     threshold.value = t;
     markerMove();
   }
 }
 
 canvas.onmousedown = (e) => {
+  console.log(e);
   mouseState.button = e.button;
   mouseState.shift = e.shiftKey;
+  mouseState.alt = e.altKey;
 }
 
 canvas.oncontextmenu = (e) => {
@@ -61,14 +63,28 @@ canvas.onmousemove = (e) => {
 const mouseMarkers = (e) => {
   if (mouseState.button > -1) {
     let { x, y } = getCoords(e);
+    if (mouseState.alt) {
+      redrawImage();
+      let radius = 10
+      context.beginPath();
+      context.arc(x, y, radius, 0, 2 * Math.PI, false);
+      context.fillStyle = 'white';
+      context.fill();
+      context.lineWidth = 0;
+      context.strokeStyle = 'white';
+      context.stroke();
+      storeImage();
+      drawMarkers();
+      return;
+    }
     if (mouseState.button === 0) {
-      if(!mouseState.shift){
+      if (!mouseState.shift) {
         xMin.value = x;
       } else {
         horizontalMarker.value = y;
       }
     } else {
-      if(!mouseState.shift){
+      if (!mouseState.shift) {
         xMax.value = x;
       } else {
         yAxis.value = y;
@@ -259,7 +275,7 @@ const convertFromScale = (x) => {
 }
 
 const image = new Image();
-
+let tempImage;
 image.onload = () => {
   canvas.width = image.width;
   canvas.height = image.height;
@@ -273,13 +289,19 @@ image.onload = () => {
   yAxis.max = canvas.height;
   // yAxis.value = canvas.height;
 
-  redrawImage();
+  context.drawImage(image, 0, 0);
+  storeImage();
   drawMarkers();
+}
+
+const storeImage = () => {
+  tempImage = context.getImageData(0, 0, canvas.width, canvas.height);
+
 }
 
 const redrawImage = () => {
   context.clearRect(0, 0, canvas.width, canvas.height);
-  context.drawImage(image, 0, 0);
+  context.putImageData(tempImage, 0, 0);
 }
 
 const drawMarkers = () => {
