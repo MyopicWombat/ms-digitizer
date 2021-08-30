@@ -1,8 +1,8 @@
 //gui elements
-import {canvas, context, pixelSize, horizontalMarker, threshold, process, xMin, xMax, yAxis, scaleMin, scaleMax, reload, radius} from './gui.js'
+import { canvas, context, pixelSize, horizontalMarker, threshold, process, xMin, xMax, yAxis, scaleMin, scaleMax, reload, radius } from './gui.js'
 
 //utility functions
-import {roundAccurately, averageIntensity, grey, convertToScale, storeImage, redrawImage, drawMarkers, drawLines} from './util.js';
+import { roundAccurately, averageIntensity, grey, convertToScale, storeImage, redrawImage, drawMarkers, drawLines } from './util.js';
 
 //global variables
 let mouseState = {
@@ -11,6 +11,7 @@ let mouseState = {
 }
 
 //event handlers
+
 const markerMove = () => {
   processMS();
 }
@@ -188,20 +189,29 @@ const findApex = (list, yStart, size) => {
 
 
 //set up image
-const image = new Image();
+// const image = new Image();
 
+
+
+// // image.src = './test.png';
+// image.src = './IMG_4980.JPG';
+
+//event handlers
+
+const image = new Image();
 image.onload = () => {
   canvas.width = image.width;
   canvas.height = image.height;
   horizontalMarker.max = canvas.height;
+  horizontalMarker.value = canvas.height - image.height * 0.04;
   xMin.max = canvas.width;
-  // xMin.value = 0;
+  xMin.value = image.width *0.01;
 
   xMax.max = canvas.width;
-  // xMax.value = canvas.width;
+  xMax.value = canvas.width - image.width * 0.01;
 
   yAxis.max = canvas.height;
-  // yAxis.value = canvas.height;
+  yAxis.value = canvas.height - image.height * 0.03;
 
   context.drawImage(image, 0, 0);
   storeImage();
@@ -209,10 +219,15 @@ image.onload = () => {
 }
 
 
-// image.src = './test.png';
-image.src = './IMG_4980.JPG';
+function handleImage(e) {
+  var reader = new FileReader();
+  reader.onload = function (event) {
+    image.src = event.target.result;
+  }
+  reader.readAsDataURL(e.target.files[0]);
+}
 
-//event handlers
+document.getElementById('files').onchange = handleImage;
 
 process.onclick = () => {
   const processed = processMS();
@@ -256,7 +271,7 @@ canvas.oncontextmenu = (e) => {
 
 canvas.onmouseup = (e) => {
   mouseMarkers(e);
-  if(mouseState.alt) {
+  if (mouseState.alt) {
     markerMove()
   };
   mouseState.button = -1;
