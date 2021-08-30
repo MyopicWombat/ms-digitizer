@@ -9,7 +9,15 @@ const xMax = document.getElementById('xMax');
 const yAxis = document.getElementById('yAxis');
 const scaleMin = document.getElementById('scaleMin');
 const scaleMax = document.getElementById('scaleMax');
+const reload = document.getElementById('reload');
+const radius = document.getElementById('radius');
 
+reload.onclick = () => {
+  context.drawImage(image, 0, 0);
+  storeImage();
+  drawMarkers();
+
+}
 
 const roundAccurately = (number, decimalPlaces) => Number(Math.round(number + "e" + decimalPlaces) + "e-" + decimalPlaces)
 const markerMove = () => {
@@ -40,7 +48,6 @@ canvas.onmousewheel = (e) => {
 }
 
 canvas.onmousedown = (e) => {
-  console.log(e);
   mouseState.button = e.button;
   mouseState.shift = e.shiftKey;
   mouseState.alt = e.altKey;
@@ -52,8 +59,12 @@ canvas.oncontextmenu = (e) => {
 
 canvas.onmouseup = (e) => {
   mouseMarkers(e);
+  if(mouseState.alt) {
+    markerMove()
+  };
   mouseState.button = -1;
   mouseState.shift = false;
+  mouseState.alt = false;
 }
 
 canvas.onmousemove = (e) => {
@@ -65,9 +76,9 @@ const mouseMarkers = (e) => {
     let { x, y } = getCoords(e);
     if (mouseState.alt) {
       redrawImage();
-      let radius = 10
+      let rad = Number(radius.value);
       context.beginPath();
-      context.arc(x, y, radius, 0, 2 * Math.PI, false);
+      context.arc(x, y, rad, 0, 2 * Math.PI, false);
       context.fillStyle = 'white';
       context.fill();
       context.lineWidth = 0;
@@ -91,7 +102,6 @@ const mouseMarkers = (e) => {
       }
     }
     markerMove();
-
   }
 }
 
