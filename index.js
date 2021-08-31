@@ -1,8 +1,8 @@
 //gui elements
-import { canvas, context, pixelSize, horizontalMarker, threshold, process, xMin, xMax, yAxis, scaleMin, scaleMax, reload, radius } from './gui.js'
+import { canvas, context, pixelSize, apexWidth, apexHeight, horizontalMarker, threshold, process, xMin, xMax, yAxis, scaleMin, scaleMax, reload, radius } from './gui.js'
 
 //utility functions
-import { roundAccurately, averageIntensity, grey, convertToScale, storeImage, redrawImage, drawMarkers, drawLines } from './util.js';
+import { roundAccurately, averageIntensity, grey, convertToScale, storeImage, redrawImage, drawMarkers, drawLines, mostIntensePixel, drawPath } from './util.js';
 
 //global variables
 let mouseState = {
@@ -63,11 +63,13 @@ const processMS = () => {
   redrawImage();
   const y = Number(horizontalMarker.value);
   const size = Number(pixelSize.value);
+  const apexFindWidth = Number(apexWidth.value);
+  const apexFindHeight = Number(apexHeight.value);
 
   let list = getIntensitiesOnMarker(y, size);
   list = firstDerivativeFilter(list);
   list = refineCenter(list, y, size);
-  list = findApex(list, y, size);
+  list = findApex(list, y, apexFindWidth, apexFindHeight);
   drawLines(list);
   drawMarkers();
   return list.map(element => {
@@ -82,11 +84,11 @@ const getIntensitiesOnMarker = (y, size) => {
   const list = [];
   const x1 = Number(xMin.value), x2 = Number(xMax.value)
   for (let x = x1; x < x2; x++) {
-    let pixels = context.getImageData(x, y, size, -size).data;
-    let intensity = averageIntensity(pixels);
+    let pixels = context.getImageData(x, y, size, -2).data;
+    let darkest = mostIntensePixel(pixels, size);
     list.push({
       x: x,
-      y: intensity
+      y: darkest.i
     }
     );
   }
@@ -144,44 +146,49 @@ const refineCenter = (list, y, size) => {
   return refined;
 }
 
-const findApex = (list, yStart, size) => {
+
+
+const findApex = (list, yStart, sizeX, sizeY) => {
   const apexes = [];
-
+  console.log(sizeX, sizeY);
   for (let i = 0; i < list.length; i++) {
-
+    let maxes = [];
+    console.log('next item to find apex');
     let aboveThreshold = true;
-
-
     let max = {
       x: list[i].x,
+      y: yStart,
       i: 0
     };
+    let prevMax = { ...max };
     let y = yStart;
-
     let counter = 0;
     while (aboveThreshold && counter < canvas.height) {
       counter++;
-      y -= size;
-      max.i = 0;
-      // console.log('current max', max);
-      for (let x = max.x - size; x <= max.x + size; x += size) {
-        let intensity = averageIntensity(context.getImageData(x, y, size, size).data)
-        // console.log('current intensity', intensity);
-        if (intensity > max.i) {
-          max = {
-            x,
-            i: intensity
-          }
-        }
-        // console.log('max after comparison', max)
-      }
-      // console.log(Number(threshold.value))
+      y -= sizeY;
+
+      console.log('checking location: ', max.x, y);
+      let width = sizeX * 2 + 1
+      prevMax = { ...max };
+      max = mostIntensePixel(context.getImageData(max.x - sizeX, y, width, -sizeY).data, width)
+      max.x = max.x + prevMax.x - sizeX;
+      max.y = max.y + y;
+      // maxes.push(max);
+
+      console.log('initial x', list[i].x)
+      console.log('prev max: ', prevMax);
+      console.log('new max: ', max);
+
+
       aboveThreshold = max.i > Number(threshold.value);
-      // console.log(aboveThreshold);
+
     }
+
+    // drawPath(maxes);
+
     apexes.push({
       x: list[i].x,
-      y
+      y: max.y
     })
   }
   return apexes;
@@ -205,7 +212,7 @@ image.onload = () => {
   horizontalMarker.max = canvas.height;
   horizontalMarker.value = canvas.height - image.height * 0.04;
   xMin.max = canvas.width;
-  xMin.value = image.width *0.01;
+  xMin.value = image.width * 0.01;
 
   xMax.max = canvas.width;
   xMax.value = canvas.width - image.width * 0.01;
@@ -243,12 +250,15 @@ reload.onclick = () => {
   markerMove();
 }
 
-horizontalMarker.oninput = markerMove;
-xMin.oninput = markerMove;
-xMax.oninput = markerMove;
-yAxis.oninput = markerMove;
-threshold.oninput = markerMove;
-pixelSize.oninput = markerMove;
+horizontalMarker.oninput =
+  xMin.oninput =
+  xMax.oninput =
+  yAxis.oninput =
+  threshold.oninput =
+  pixelSize.oninput =
+  apexWidth.oninput =
+  apexHeight.oninput =
+  markerMove;
 
 canvas.onmousewheel = (e) => {
   if (e.altKey) {

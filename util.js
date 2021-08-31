@@ -1,4 +1,4 @@
-import {canvas, context, pixelSize, horizontalMarker, threshold, process, xMin, xMax, yAxis, scaleMin, scaleMax, reload, radius} from './gui.js'
+import {canvas, context, horizontalMarker, xMin, xMax, yAxis, scaleMin, scaleMax, radius} from './gui.js'
 
 let tempImage;
 
@@ -13,13 +13,44 @@ const averageIntensity = (pixels) => {
   return average;
 }
 
+const mostIntensePixel = (pixels, width) => {
+  // console.log(pixels);
+  let vector = {
+    x: 0,
+    y: 0,
+    i: 0
+  };
+  for (let i = 0; i < pixels.length; i += 4) {
+    let cur = grey(pixels.slice(i, i + 4));
+    // console.log(cur);
+    if (cur > vector.i){
+      if(width){
+        vector = getXYFromIndex(i,width);
+      }
+      vector.i = cur;
+    }
+  }
+  if(width){
+    return vector;
+  }
+  return vector.i;
+}
+
+const getXYFromIndex = (startNum, width) => {
+  let vector = {};
+  let pixelNum = startNum /4;
+  vector.y = Math.floor(pixelNum/width);
+  vector.x = pixelNum % width;
+  return vector;
+}
+
 function getStartPixel(x, y, width) {
   var start = y * (width * 4) + x * 4;
   return start;
 }
 
 const grey = (pixel) => {
-  return 255 - (2 * pixel[0] + 5 * pixel[1] + pixel[2]) / 8
+  return Math.floor(255 - (2 * pixel[0] + 5 * pixel[1] + pixel[2]) / 8)
 }
 
 const convertToScale = (x) => {
@@ -93,4 +124,15 @@ const drawLines = (list) => {
   });
 }
 
-export {roundAccurately, averageIntensity, getStartPixel, grey, convertToScale, convertFromScale, storeImage, redrawImage, drawMarkers, drawLines};
+const drawPath = (list) => {
+  context.beginPath();
+  context.moveTo(list[0].x, list[0].y);
+  for (let i = 0; i < list.length; i++) {
+    console.log(list[i])
+    context.lineTo(list[i].x, list[i].y);
+  }
+  context.strokeStyle = '#FF0000';
+  context.stroke();
+}
+
+export {roundAccurately, averageIntensity, getStartPixel, grey, convertToScale, convertFromScale, storeImage, redrawImage, drawMarkers, drawLines, mostIntensePixel, drawPath};

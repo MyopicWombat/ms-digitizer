@@ -19,7 +19,7 @@
       location.</p>
     <p>Alt-scroll on image to adjust threshold</p>
     <p>Alt-clicking whites out an area of the image to correct processed data.</p>
-    <p>Pixel size can be tuned for blurry images. Threshold is the limit for feature finding.</p>
+    <p>Peak finding can be tuned for blurry or spotted images. Threshold is the limit for feature finding.</p>
     <p>Process outputs csv text at the bottom of the page.</p>
   </div>
   <div>
@@ -45,8 +45,14 @@
     <input id='xMax' type='range' min='0' max='2000' value='1590'>
   </div>
   <div>
-    <label for='pixelSize'>Pixel Size</label>
+    <label for='pixelSize'>Peak Find Width</label>
     <input id='pixelSize' type='range' min='1' max='10' value='1'>
+    <label for='apexWidth'>Apex Find: Width</label>
+    <input id='apexWidth' type='range' min='1' max='10' value='1'>
+    <label for='apexHeight'>Height</label>
+    <input id='apexHeight' type='range' min='1' max='10' value='1'>
+  </div>
+  <div>
     <label for='threshold'>Threshold</label>
     <input id='threshold' type='range' min='0' max='255' value='100'>
   </div>
