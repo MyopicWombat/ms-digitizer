@@ -1,5 +1,5 @@
 //gui elements
-import { canvas, context, pixelSize, apexWidth, apexHeight, horizontalMarker, threshold, process, xMin, xMax, yAxis, scaleMin, scaleMax, reload, radius } from './gui.js'
+import { canvas, context, pixelSize, apexWidth, apexHeight, horizontalMarker, threshold, process, xMin, xMax, yAxis, scaleMin, scaleMax, reload, radius, helpButton} from './gui.js'
 
 //utility functions
 import { roundAccurately, averageIntensity, grey, convertToScale, storeImage, redrawImage, drawMarkers, drawLines, mostIntensePixel, drawPath } from './util.js';
@@ -150,10 +150,10 @@ const refineCenter = (list, y, size) => {
 
 const findApex = (list, yStart, sizeX, sizeY) => {
   const apexes = [];
-  console.log(sizeX, sizeY);
+  // console.log(sizeX, sizeY);
   for (let i = 0; i < list.length; i++) {
     let maxes = [];
-    console.log('next item to find apex');
+    // console.log('next item to find apex');
     let aboveThreshold = true;
     let max = {
       x: list[i].x,
@@ -167,7 +167,7 @@ const findApex = (list, yStart, sizeX, sizeY) => {
       counter++;
       y -= sizeY;
 
-      console.log('checking location: ', max.x, y);
+      // console.log('checking location: ', max.x, y);
       let width = sizeX * 2 + 1
       prevMax = { ...max };
       max = mostIntensePixel(context.getImageData(max.x - sizeX, y, width, -sizeY).data, width)
@@ -175,9 +175,9 @@ const findApex = (list, yStart, sizeX, sizeY) => {
       max.y = max.y + y;
       // maxes.push(max);
 
-      console.log('initial x', list[i].x)
-      console.log('prev max: ', prevMax);
-      console.log('new max: ', max);
+      // console.log('initial x', list[i].x)
+      // console.log('prev max: ', prevMax);
+      // console.log('new max: ', max);
 
 
       aboveThreshold = max.i > Number(threshold.value);
@@ -235,6 +235,14 @@ function handleImage(e) {
 }
 
 document.getElementById('files').onchange = handleImage;
+
+//can't use arrow functions when this is called as this refers to the parent object from an
+//arrow function instead of the caller.
+helpButton.onclick = function() {
+  this.classList.toggle('active');
+  let content = this.nextElementSibling;
+  content.classList.toggle('hidden');
+}
 
 process.onclick = () => {
   const processed = processMS();

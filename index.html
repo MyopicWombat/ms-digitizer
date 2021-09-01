@@ -11,51 +11,73 @@
 </head>
 
 <body>
-  <div>
-    <p>Click "Choose File" to upload a file.</p>
-    <p>Left click sets the x-min location, right click sets the x-max location. Set the scale value with the input
-      fields.</p>
-    <p>Shift left click to set the horizontal marker (region for peak finding). Shift right click to set y-axis
-      location.</p>
-    <p>Alt-scroll on image to adjust threshold</p>
-    <p>Alt-clicking whites out an area of the image to correct processed data.</p>
-    <p>Peak finding can be tuned for blurry or spotted images. Threshold is the limit for feature finding.</p>
-    <p>Process outputs csv text at the bottom of the page.</p>
-  </div>
-  <div>
-    <input type='file' id='files'>
-    <button id='process'>Process</button>
-    <button id='reload'>Reload Image</button>
-    <label for='radius'>Whiteout Radius (alt-click)</label>
-    <input id='radius' type='range' min='1' max='20' value='10'>
-  </div>
+  <header>
+    <input id='helpButton' type='button' class='help-button' value="Help">
+    <div id='help' class='hidden'>
+      <p>Click "Choose File" to upload a file.</p>
+      <p>Left click sets the x-min location, right click sets the x-max location. Set the scale value with the input
+        fields.</p>
+      <p>Shift left click to set the horizontal marker (region for peak finding). Shift right click to set y-axis
+        location.</p>
+      <p>Alt-scroll on image to adjust threshold</p>
+      <p>Alt-clicking whites out an area of the image to correct processed data.</p>
+      <p>Peak finding can be tuned for blurry or spotted images. Threshold is the limit for feature finding.</p>
+      <p>Process outputs csv text at the bottom of the page.</p>
+    </div>
 
-  <div>
-    <label for='yAxis'>y-axis</label>
-    <input id='yAxis' type='range' min='1' max='10000' value='1020'>
-    <label for='horizontalMarker'>Horiztonal Marker</label>
-    <input id='horizontalMarker' type='range' min='1' max='10000' value='1000'>
-  </div>
-  <div>
-    <label for='xMin'>xMin</label>
-    <input id='scaleMin' type='number' placeholder="min" value=40>
-    <input id='xMin' type='range' min='0' max='2000' value='1530'>
-    <label for='xMax'>xMax</label>
-    <input id='scaleMax' type='number' placeholder="max" value=460>
-    <input id='xMax' type='range' min='0' max='2000' value='1590'>
-  </div>
-  <div>
-    <label for='pixelSize'>Peak Find Width</label>
-    <input id='pixelSize' type='range' min='1' max='10' value='1'>
-    <label for='apexWidth'>Apex Find: Width</label>
-    <input id='apexWidth' type='range' min='1' max='10' value='1'>
-    <label for='apexHeight'>Height</label>
-    <input id='apexHeight' type='range' min='1' max='10' value='1'>
-  </div>
-  <div>
-    <label for='threshold'>Threshold</label>
-    <input id='threshold' type='range' min='0' max='255' value='100'>
-  </div>
+  </header>
+  <fieldset id='actions' class='group'>
+    <fieldset id='file-actions' class='line-group'>
+      <input type='file' id='files'>
+      <input type="button" id='reload' value="Reload Original Image">
+      <input type='button' id='process' value='Process'>
+    </fieldset>
+    <fieldset id='corrections' class='line-group'>
+      <label for='radius'>Whiteout Radius (alt-click)</label>
+      <input id='radius' type='range' min='1' max='20' value='10'>
+    </fieldset>
+  </fieldset>
+
+  <fieldset id='y-markers' class='group'>
+    <fieldset id='horizontal-marker-controls' class="line-group">
+      <label for='horizontalMarker'>Horiztonal Marker</label>
+      <input id='horizontalMarker' type='range' min='1' max='10000' value='1000'>
+    </fieldset>
+    <fieldset id='y-axis-controls' class="line-group">
+      <label for='yAxis'>y-axis</label>
+      <input id='yAxis' type='range' min='1' max='10000' value='1020'>
+    </fieldset>
+  </fieldset>
+  <fieldset id='x-markers' class='group'>
+    <fieldset id='xmin-controls' class='line-group'>
+      <label for='xMin'>x Min Location</label>
+      <input id='xMin' type='range' min='0' max='2000' value=''>
+      <label for='scaleMin'>value at min</label>
+      <input id='scaleMin' class='scale-input' type='number' placeholder="min" value='0'>
+    </fieldset>
+    <fieldset id='xmax-controls' class='line-group'>
+      <label for='xMax'>x Max Location</label>
+      <input id='xMax' type='range' min='0' max='2000' value=''>
+      <label for='scaleMin'>value at max</label>
+      <input id='scaleMax' class='scale-input' type='number' placeholder="max" value='100'>
+    </fieldset>
+  </fieldset>
+  <fieldset id='feature-finding-controls' class="group">
+    <fieldset id='peak-picking-controls' class='line-group'>
+      <label for='pixelSize'>Peak Find: Width</label>
+      <input id='pixelSize' type='range' min='1' max='10' value='1'>
+    </fieldset>
+    <fieldset id='apex-picking-controls' class='line-group'>
+      <label for='apexWidth'>Apex Find: Width</label>
+      <input id='apexWidth' type='range' min='1' max='10' value='1'>
+      <label for='apexHeight'>Height</label>
+      <input id='apexHeight' type='range' min='1' max='10' value='1'>
+    </fieldset>
+    <fieldset id='image-color-controls' class="line-group">
+      <label for='threshold'>Threshold</label>
+      <input id='threshold' type='range' min='0' max='255' value='90'>
+    </fieldset>
+  </fieldset>
   <div>
     <canvas id='imageCanvas'></canvas>
     <div id='output'></div>

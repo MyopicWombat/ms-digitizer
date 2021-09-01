@@ -1,3 +1,73 @@
+header {
+  box-shadow: 0px 0px 5px grey;
+  border: 1px solid darkgrey;
+  font-size: 0.8em;
+  margin-bottom: 0.5em;
+}
+#help {
+  /* background-color: lightgrey; */
+  padding: 0.5em;
+  /* display: flex; */
+  flex-direction: column;
+
+}
+
+
+.help-button {
+  background-color: #777;
+  color: white;
+  cursor: pointer;
+  padding: 0.5em;
+  width: 100%;
+  border: none;
+  border-radius: 0px;
+  text-align: left;
+  outline: none;
+}
+
+.hidden {
+  background-color: blue;
+  display: none;
+}
+
+.active, .help-button:hover {
+  background-color: #555;
+}
+.scale-input {
+  width: 6ch;
+}
+fieldset {
+  display: flex;
+  gap: 1em;
+  margin: 0;
+  padding: 0;
+  height: 1.5em;
+  align-items: center;
+  padding-left: 1em;
+}
+
+.group{
+  border: 1px solid black;
+  border-bottom: 0;
+}
+.group:last-of-type {
+  border-bottom: 1px solid black;
+}
+
+.line-group{
+  display: inline-block;
+  border: 0;
+  display: flex;
+  align-items: center;
+  padding-left: 0;
+}
+
+.line-group:nth-of-type(n+2){
+  border-left: 1px solid black;
+  padding-left: 1em;
+}
+
+
 p {
   margin: 0;
 }

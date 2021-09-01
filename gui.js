@@ -13,5 +13,6 @@ const scaleMin = document.getElementById('scaleMin');
 const scaleMax = document.getElementById('scaleMax');
 const reload = document.getElementById('reload');
 const radius = document.getElementById('radius');
+const helpButton = document.getElementById('helpButton');
 
-export {canvas, context, pixelSize, horizontalMarker, threshold, process, xMin, xMax, yAxis, scaleMin, scaleMax, reload, radius, apexWidth, apexHeight}
+export {canvas, context, pixelSize, horizontalMarker, threshold, process, xMin, xMax, yAxis, scaleMin, scaleMax, reload, radius, apexWidth, apexHeight, helpButton}
