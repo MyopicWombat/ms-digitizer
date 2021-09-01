@@ -1,10 +1,11 @@
 //gui elements
-import { canvas, context, pixelSize, apexWidth, apexHeight, horizontalMarker, threshold, process, xMin, xMax, yAxis, scaleMin, scaleMax, reload, radius, helpButton} from './gui.js'
+import { canvas, context, pixelSize, apexWidth, apexHeight, horizontalMarker, threshold, process, xMin, xMax, yAxis, scaleMin, scaleMax, reload, radius, helpButton } from './gui.js'
 
 //utility functions
-import { roundAccurately, averageIntensity, grey, convertToScale, storeImage, redrawImage, drawMarkers, drawLines, mostIntensePixel, drawPath } from './util.js';
+import { roundAccurately, averageIntensity, grey, convertToScale, storeImage, redrawImage, drawMarkers, drawLines, mostIntensePixel, drawPath, copyToClipboard } from './util.js';
 
 //global variables
+let fileloaded = false;
 let mouseState = {
   button: -1,
   shift: false
@@ -13,7 +14,9 @@ let mouseState = {
 //event handlers
 
 const markerMove = () => {
-  processMS();
+  if(fileloaded){
+    processMS();
+  }
 }
 
 const mouseMarkers = (e) => {
@@ -83,11 +86,11 @@ const processMS = () => {
 const getIntensitiesOnMarker = (y, size) => {
   const list = [];
   const x1 = Number(xMin.value), x2 = Number(xMax.value)
-  for (let x = x1; x < x2; x++) {
+  for (let x = x1; x < x2; x += size) {
     let pixels = context.getImageData(x, y, size, -2).data;
     let darkest = mostIntensePixel(pixels, size);
     list.push({
-      x: x,
+      x: darkest.x + x,
       y: darkest.i
     }
     );
@@ -114,6 +117,7 @@ const firstDerivativeFilter = (list) => {
 }
 
 const refineCenter = (list, y, size) => {
+  console.log(list)
   const refined = [];
 
   for (let i = 0; i < list.length; i++) {
@@ -124,14 +128,14 @@ const refineCenter = (list, y, size) => {
     let pi = left;
     let pixel = 255;
 
-    while (pi <= list[i].x + size && pixel > intensity / 2) {
+    while (pi <= list[i].x + size * 2 && pixel > intensity / 2) {
       right = pi;
       pi++;
       pixel = grey(context.getImageData(pi, y, 1, -1).data);
     }
 
     pi = right;
-    while (pi >= list[i].x - size && pixel > intensity / 2) {
+    while (pi >= list[i].x - size * 2 && pixel > intensity / 2) {
       left = pi;
       pi--;
       pixel = grey(context.getImageData(pi, y, 1, -1).data);
@@ -142,7 +146,7 @@ const refineCenter = (list, y, size) => {
       y: intensity
     })
   }
-  // console.log(refined);
+  console.log(refined);
   return refined;
 }
 
@@ -150,41 +154,28 @@ const refineCenter = (list, y, size) => {
 
 const findApex = (list, yStart, sizeX, sizeY) => {
   const apexes = [];
-  // console.log(sizeX, sizeY);
   for (let i = 0; i < list.length; i++) {
-    let maxes = [];
-    // console.log('next item to find apex');
     let aboveThreshold = true;
+
     let max = {
       x: list[i].x,
       y: yStart,
       i: 0
     };
-    let prevMax = { ...max };
     let y = yStart;
     let counter = 0;
     while (aboveThreshold && counter < canvas.height) {
       counter++;
       y -= sizeY;
 
-      // console.log('checking location: ', max.x, y);
       let width = sizeX * 2 + 1
-      prevMax = { ...max };
+      let prevMax = { ...max };
       max = mostIntensePixel(context.getImageData(max.x - sizeX, y, width, -sizeY).data, width)
       max.x = max.x + prevMax.x - sizeX;
       max.y = max.y + y;
-      // maxes.push(max);
-
-      // console.log('initial x', list[i].x)
-      // console.log('prev max: ', prevMax);
-      // console.log('new max: ', max);
-
-
       aboveThreshold = max.i > Number(threshold.value);
 
     }
-
-    // drawPath(maxes);
 
     apexes.push({
       x: list[i].x,
@@ -229,6 +220,7 @@ image.onload = () => {
 function handleImage(e) {
   var reader = new FileReader();
   reader.onload = function (event) {
+    fileloaded = true;
     image.src = event.target.result;
   }
   reader.readAsDataURL(e.target.files[0]);
@@ -238,7 +230,7 @@ document.getElementById('files').onchange = handleImage;
 
 //can't use arrow functions when this is called as this refers to the parent object from an
 //arrow function instead of the caller.
-helpButton.onclick = function() {
+helpButton.onclick = function () {
   this.classList.toggle('active');
   let content = this.nextElementSibling;
   content.classList.toggle('hidden');
@@ -250,6 +242,10 @@ process.onclick = () => {
   output.innerHTML = processed.reduce((acc, cur) => {
     return acc + `<div>${cur.x}, ${cur.y}</div>`;
   }, '');
+  copyToClipboard(processed.reduce((acc, cur) => {
+    return acc + `${cur.x}, ${cur.y}\n`;
+  }, ''))
+
 };
 
 reload.onclick = () => {

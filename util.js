@@ -2,9 +2,9 @@ import {canvas, context, horizontalMarker, xMin, xMax, yAxis, scaleMin, scaleMax
 
 let tempImage;
 
-const roundAccurately = (number, decimalPlaces) => Number(Math.round(number + "e" + decimalPlaces) + "e-" + decimalPlaces)
+export const roundAccurately = (number, decimalPlaces) => Number(Math.round(number + "e" + decimalPlaces) + "e-" + decimalPlaces)
 
-const averageIntensity = (pixels) => {
+export const averageIntensity = (pixels) => {
   let average = 0;
   for (let i = 0; i < pixels.length; i += 4) {
     average += grey(pixels.slice(i, i + 4));
@@ -13,7 +13,7 @@ const averageIntensity = (pixels) => {
   return average;
 }
 
-const mostIntensePixel = (pixels, width) => {
+export const mostIntensePixel = (pixels, width) => {
   // console.log(pixels);
   let vector = {
     x: 0,
@@ -36,7 +36,7 @@ const mostIntensePixel = (pixels, width) => {
   return vector.i;
 }
 
-const getXYFromIndex = (startNum, width) => {
+export const getXYFromIndex = (startNum, width) => {
   let vector = {};
   let pixelNum = startNum /4;
   vector.y = Math.floor(pixelNum/width);
@@ -44,16 +44,16 @@ const getXYFromIndex = (startNum, width) => {
   return vector;
 }
 
-function getStartPixel(x, y, width) {
+export function getStartPixel(x, y, width) {
   var start = y * (width * 4) + x * 4;
   return start;
 }
 
-const grey = (pixel) => {
+export const grey = (pixel) => {
   return Math.floor(255 - (2 * pixel[0] + 5 * pixel[1] + pixel[2]) / 8)
 }
 
-const convertToScale = (x) => {
+export const convertToScale = (x) => {
   const s1 = Number(scaleMax.value), s2 = Number(scaleMin.value),
   x1 = Number(xMax.value), x2 = Number(xMin.value)
   const m = (s1 - s2) / (x1 - x2);
@@ -61,7 +61,7 @@ const convertToScale = (x) => {
   return m * x + b;
 }
 
-const convertFromScale = (x) => {
+export const convertFromScale = (x) => {
   const s1 = Number(scaleMax.value), s2 = Number(scaleMin.value),
   x1 = Number(xMax.value), x2 = Number(xMin.value)
   const m = (x1 - x2) / (s1 - s2);
@@ -70,16 +70,16 @@ const convertFromScale = (x) => {
 
 }
 
-const storeImage = () => {
+export const storeImage = () => {
   tempImage = context.getImageData(0, 0, canvas.width, canvas.height);
 }
 
-const redrawImage = () => {
+export const redrawImage = () => {
   context.clearRect(0, 0, canvas.width, canvas.height);
   context.putImageData(tempImage, 0, 0);
 }
 
-const drawMarkers = () => {
+export const drawMarkers = () => {
   context.beginPath()
 
   context.moveTo(0, horizontalMarker.value);
@@ -99,7 +99,7 @@ const drawMarkers = () => {
   context.stroke();
 }
 
-const drawLines = (list) => {
+export const drawLines = (list) => {
   list.forEach(element => {
     // element.x = convertFromScale(element.x);
 
@@ -124,7 +124,7 @@ const drawLines = (list) => {
   });
 }
 
-const drawPath = (list) => {
+export const drawPath = (list) => {
   context.beginPath();
   context.moveTo(list[0].x, list[0].y);
   for (let i = 0; i < list.length; i++) {
@@ -135,4 +135,23 @@ const drawPath = (list) => {
   context.stroke();
 }
 
-export {roundAccurately, averageIntensity, getStartPixel, grey, convertToScale, convertFromScale, storeImage, redrawImage, drawMarkers, drawLines, mostIntensePixel, drawPath};
+export const copyToClipboard = str => {
+  //https://www.30secondsofcode.org/js/s/copy-to-clipboard
+  const el = document.createElement('textarea');
+  el.value = str;
+  el.setAttribute('readonly', '');
+  el.style.position = 'absolute';
+  el.style.left = '-9999px';
+  document.body.appendChild(el);
+  const selected =
+    document.getSelection().rangeCount > 0
+      ? document.getSelection().getRangeAt(0)
+      : false;
+  el.select();
+  document.execCommand('copy');
+  document.body.removeChild(el);
+  if (selected) {
+    document.getSelection().removeAllRanges();
+    document.getSelection().addRange(selected);
+  }
+};
