@@ -1,11 +1,13 @@
 //gui elements
 import { canvas, context, pixelSize, apexWidth, apexHeight, horizontalMarker, threshold, process, xMin, xMax, yAxis, scaleMin, scaleMax, reload, radius, helpButton } from './gui.js'
+console.log(canvas);
 
 //utility functions
 import { roundAccurately, averageIntensity, grey, convertToScale, storeImage, redrawImage, drawMarkers, drawLines, mostIntensePixel, drawPath, copyToClipboard } from './util.js';
 
 //global variables
 let fileloaded = false;
+
 let mouseState = {
   button: -1,
   shift: false
@@ -210,8 +212,9 @@ image.onload = () => {
 
   yAxis.max = canvas.height;
   yAxis.value = canvas.height - image.height * 0.03;
-
+  context.save();
   context.drawImage(image, 0, 0);
+  context.restore();
   storeImage();
   drawMarkers();
 }

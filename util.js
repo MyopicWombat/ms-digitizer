@@ -1,6 +1,4 @@
-import {canvas, context, horizontalMarker, xMin, xMax, yAxis, scaleMin, scaleMax, radius} from './gui.js'
-
-let tempImage;
+import { canvas, context, horizontalMarker, xMin, xMax, yAxis, scaleMin, scaleMax, radius } from './gui.js'
 
 export const roundAccurately = (number, decimalPlaces) => Number(Math.round(number + "e" + decimalPlaces) + "e-" + decimalPlaces)
 
@@ -14,56 +12,54 @@ export const averageIntensity = (pixels) => {
 }
 
 export const mostIntensePixel = (pixels, width) => {
-  // console.log(pixels);
-  let vector = {
-    x: 0,
-    y: 0,
-    i: 0
-  };
+  //returns the darkest grey pixel from the pixels array
+  let vector = { x: 0, y: 0, i: 0 };
   for (let i = 0; i < pixels.length; i += 4) {
     let cur = grey(pixels.slice(i, i + 4));
-    // console.log(cur);
-    if (cur > vector.i){
-      if(width){
-        vector = getXYFromIndex(i,width);
+    if (cur > vector.i) {
+      if (width) {
+        vector = getXYFromIndex(i, width);
       }
       vector.i = cur;
     }
   }
-  if(width){
-    return vector;
-  }
-  return vector.i;
+  return (width && vector) || vector.i;
 }
 
 export const getXYFromIndex = (startNum, width) => {
+  //get x y coords from an index in an ImageData array with known width
   let vector = {};
-  let pixelNum = startNum /4;
-  vector.y = Math.floor(pixelNum/width);
+  let pixelNum = startNum / 4;
+  vector.y = Math.floor(pixelNum / width);
   vector.x = pixelNum % width;
   return vector;
 }
 
 export function getStartPixel(x, y, width) {
+  //get index of a pixel from x y coords in an ImageData array
   var start = y * (width * 4) + x * 4;
   return start;
 }
 
 export const grey = (pixel) => {
+  //dirty greyscale conversion inverted to make threshold more sensible
+  //0 is white, 255 is black
   return Math.floor(255 - (2 * pixel[0] + 5 * pixel[1] + pixel[2]) / 8)
 }
 
-export const convertToScale = (x) => {
+export const convertToScale = (x, pixelStart, scaleStart, pixelEnd, scaleEnd) => {
+  //get the scaled x coordinate from a pixel value when given the pixel to scale conversions
   const s1 = Number(scaleMax.value), s2 = Number(scaleMin.value),
-  x1 = Number(xMax.value), x2 = Number(xMin.value)
+    x1 = Number(xMax.value), x2 = Number(xMin.value)
   const m = (s1 - s2) / (x1 - x2);
   const b = (s1 - (m * x1));
   return m * x + b;
 }
 
-export const convertFromScale = (x) => {
+export const convertFromScale = (x, pixelStart, scaleStart, pixelEnd, scaleEnd) => {
+  //get the pixel x coordinate from a scaled x coordinate when give the scale conversions
   const s1 = Number(scaleMax.value), s2 = Number(scaleMin.value),
-  x1 = Number(xMax.value), x2 = Number(xMin.value)
+    x1 = Number(xMax.value), x2 = Number(xMin.value)
   const m = (x1 - x2) / (s1 - s2);
   const b = (x1 - (m * s1));
   return m * x + b;
@@ -71,12 +67,12 @@ export const convertFromScale = (x) => {
 }
 
 export const storeImage = () => {
-  tempImage = context.getImageData(0, 0, canvas.width, canvas.height);
+  context.savedImage = context.getImageData(0, 0, canvas.width, canvas.height);;
 }
 
 export const redrawImage = () => {
   context.clearRect(0, 0, canvas.width, canvas.height);
-  context.putImageData(tempImage, 0, 0);
+  context.putImageData(context.savedImage, 0, 0);
 }
 
 export const drawMarkers = () => {
