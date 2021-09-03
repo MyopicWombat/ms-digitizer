@@ -1,16 +1,20 @@
 import { context } from "../gui";
 
 export class MSImage {
-  #canvas
+  #canvas;
+  #canvasScale = 1;
   #context;
   #savedImage;
   #rulers;
 
-  #workingCanvas;
-  #workingCanvasScale = 1;
+  #processingCanvas;
   constructor(canvas) {
     this.#canvas = canvas;
     this.#context = canvas.getContext('2d')
+    this.#processingCanvas = document.createElement('canvas');
+  }
+  loadImage(image) {
+
   }
   storeImage() {
     //store a copy of the ImageData to the context
@@ -55,22 +59,22 @@ export const drawMarkers = (context, markers) => {
       drawHorizontalRule(context, markers[i].loc)
     }
   }
+}
 
+const drawVerticalRule = (context, x, color = 0) => {
+  let height = context.canvas.height;
+  drawLine(context, x, 0, x, height, color);
+}
 
-  const drawVerticalRule = (context, x, color = 0) => {
-    let height = context.canvas.height;
-    drawLine(context, x, 0, x, height, color);
-  }
+const drawHorizontalRule = (context, y, color = 0) => {
+  let width = context.canvas.width;
+  drawLine(context, 0, y, width, y, color);
+}
 
-  const drawHorizontalRule = (context, y, color = 0) => {
-    let width = context.canvas.width;
-    drawLine(context, 0, y, width, y, color);
-  }
-
-  const drawLine = (context, x1, y1, x2, y2, color = 0) => {
-    context.beginPath();
-    context.moveTo(x1, y1);
-    context.lineTo(x2, y2);
-    context.strokeStyle = color;
-    context.stroke();
-  }
+const drawLine = (context, x1, y1, x2, y2, color = 0) => {
+  context.beginPath();
+  context.moveTo(x1, y1);
+  context.lineTo(x2, y2);
+  context.strokeStyle = color;
+  context.stroke();
+}

@@ -57,9 +57,12 @@ const mouseMarkers = (e) => {
 
 const getCoords = (e) => {
   let rect = canvas.getBoundingClientRect();
+  console.log('client coords', e.clientX,e.clientY);
+  console.log(rect.width);
+  console.log(rect.left, rect.right);
   let x = e.clientX - rect.left;
   let y = e.clientY - rect.top;
-
+  console.log(x,y);
   return { x, y }
 }
 
@@ -119,7 +122,7 @@ const firstDerivativeFilter = (list) => {
 }
 
 const refineCenter = (list, y, size) => {
-  console.log(list)
+  // console.log(list)
   const refined = [];
 
   for (let i = 0; i < list.length; i++) {
@@ -148,7 +151,7 @@ const refineCenter = (list, y, size) => {
       y: intensity
     })
   }
-  console.log(refined);
+  // console.log(refined);
   return refined;
 }
 
