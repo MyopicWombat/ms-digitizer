@@ -1,24 +1,32 @@
-import { context } from "../gui";
+import { context, scaleMin } from "../gui";
 
 export class MSImage {
+  //displayed canvas
   #canvas;
   #canvasScale = 1;
   #context;
   #savedImage;
   #rulers;
 
+  //1:1 scale for image processing
   #processingCanvas;
+  #processing
   constructor(canvas) {
     this.#canvas = canvas;
     this.#context = canvas.getContext('2d')
     this.#processingCanvas = document.createElement('canvas');
   }
   loadImage(image) {
+    //draw the image on the display canvas at scale
+
+    let width = image.width;
+    let height = image.height;
+    this.#context.drawImage(image, 0, 0, width*this.#scale, height*this.#scale);
 
   }
   storeImage() {
     //store a copy of the ImageData to the context
-    this.#savedImage = context.getImageData(0, 0, canvas.width, canvas.height);
+    this.#savedImage = this.#context.getImageData(0, 0, canvas.width, canvas.height);
   }
   addRule(name, orientation, location, color) {
     this.#rulers[name] = {
@@ -42,8 +50,12 @@ export class MSImage {
     }
   }
   redrawImage() {
+    //redraw the saved image
     this.#context.clearRect(0, 0, this.#canvas.width, this.#canvas.height);
     this.#context.putImageData(this.#savedImage, 0, 0);
+  }
+  resize() {
+    //resize the display canvas
   }
 }
 

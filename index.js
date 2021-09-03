@@ -16,7 +16,7 @@ let mouseState = {
 //event handlers
 
 const markerMove = () => {
-  if(fileloaded){
+  if (fileloaded) {
     processMS();
   }
 }
@@ -57,12 +57,14 @@ const mouseMarkers = (e) => {
 
 const getCoords = (e) => {
   let rect = canvas.getBoundingClientRect();
-  console.log('client coords', e.clientX,e.clientY);
+  console.log('client coords', e.clientX, e.clientY);
   console.log(rect.width);
   console.log(rect.left, rect.right);
-  let x = e.clientX - rect.left;
-  let y = e.clientY - rect.top;
-  console.log(x,y);
+  let scalingRatio = rect.width / canvas.width;
+  let x = (e.clientX - rect.left) / scalingRatio;
+  let y = (e.clientY - rect.top) / scalingRatio;
+
+  console.log(x, y);
   return { x, y }
 }
 
@@ -300,5 +302,23 @@ canvas.onmouseup = (e) => {
 }
 
 canvas.onmousemove = (e) => {
+  if (e.ctrlKey) {
+    let window = 40;
+    let scale = 2;
+    let { x, y } = getCoords(e);
+    console.log(x, y);
+    redrawImage();
+    context.drawImage(context.testImage, x - (window), y - (window), window * 2, window * 2, x - window * scale, y - window * scale, window * 2 * scale, window * 2 * scale);
+    drawMarkers();
+  }
   mouseMarkers(e);
 }
+
+function detectspecialkeys(e){
+  console.log(e);
+  if(e.key==="Control"){
+    processMS()
+  };
+}
+document.onkeyup = detectspecialkeys;
+canvas.onkeyup = detectspecialkeys;

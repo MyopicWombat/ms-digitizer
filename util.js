@@ -68,6 +68,8 @@ export const convertFromScale = (x, pixelStart, scaleStart, pixelEnd, scaleEnd) 
 
 export const storeImage = () => {
   context.savedImage = context.getImageData(0, 0, canvas.width, canvas.height);;
+  context.testImage = new Image();
+  context.testImage.src =  canvas.toDataURL();
 }
 
 export const redrawImage = () => {
